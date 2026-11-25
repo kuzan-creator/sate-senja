@@ -10,12 +10,17 @@ An original cooking game built for make.fun's **"Make the best cooking game"** b
 
 Run an Indonesian night-market satay stall at dusk. Walk-up customers pin
 their orders to the board; you grill skewers over charcoal, flip them at the
-right moment, drown them in peanut sauce, add lontong and es teh, and serve
-before patience runs out.
+right moment, drown them in peanut sauce, add lontong, kerupuk and es teh, and
+serve before patience runs out. The menu has 11 dishes (see How to Play in
+the game for the full list with prices); the title screen, pause menu and
+game-over screen are all real menus with clickable, keyboard-navigable
+options — START SHIFT / HOW TO PLAY, RESUME / RESTART SHIFT / HOW TO PLAY,
+PLAY AGAIN / BACK TO MENU.
 
 - **Order board** — 4 customer tickets with dish, patience bar and price
 - **Grill** — 4 charcoal slots; skewers go raw → flip → perfect (green) → burnt
-- **Sauce pot** — peanut sauce, **Lontong** — rice cakes, **Drink station** — es teh
+- **Sauce pot** — peanut sauce, **Lontong** — rice cakes, **Kerupuk** — crunchy
+  crackers, **Drink station** — es teh
 - **Plating counter** — build the dish on the plate, then SERVE for coins + tips
 - **Shift timer** — 3 minutes; combo meter rewards serving streaks
 
@@ -26,10 +31,11 @@ static server). No build step, no network requests, all art drawn in code,
 sounds are tiny WebAudio bleeps.
 
 - **Mouse:** click a tray pile, then an empty grill slot; click a skewer to flip
-  it, click it again at green to plate it; click sauce / lontong / drink to add
-  them; click a ticket (or SERVE) to serve a matching plate.
-- **Keyboard:** `1–4` grill slots, `A`/`K` pick chicken/goat, `S` sauce,
-  `L` lontong, `D` drink, `Space` serve, `P` pause, `R` restart after a shift.
+  it, click it again at green to plate it; click sauce / lontong / kerupuk /
+  drink to add them; click a ticket (or SERVE) to serve a matching plate.
+- **Keyboard:** `1–4` grill slots, `A`/`G` pick chicken/goat, `S` sauce,
+  `L` lontong, `D` drink, `K` kerupuk, `Space` serve, `P` pause, `R` play again
+  after a shift, `M` back to menu. Arrow keys + Enter navigate every menu.
 
 ## Layout
 

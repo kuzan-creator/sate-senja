@@ -27,14 +27,21 @@ export const GRILL = {
   burntAt: 14,
 };
 
-/** The menu: every dish the board can ask for, with its recipe and price. */
+/** The menu: every dish the board can ask for, with its recipe and price.
+ * Prices are fixed per dish name: the same name always costs the same,
+ * wherever it appears (board, How to Play, screenshots). */
 export const MENU = [
-  { name: 'Sate Ayam + Lontong', ayam: 2, kambing: 0, sauce: 1, lontong: 1, drink: 0, price: 16 },
-  { name: 'Sate Kambing + Es Teh', ayam: 0, kambing: 2, sauce: 1, lontong: 0, drink: 1, price: 18 },
-  { name: 'Sate Campur Spesial', ayam: 1, kambing: 1, sauce: 1, lontong: 1, drink: 1, price: 22 },
-  { name: 'Sate Ayam Jumbo + Es Teh', ayam: 3, kambing: 0, sauce: 1, lontong: 0, drink: 1, price: 20 },
-  { name: 'Sate Kambing Jumbo + Es Teh', ayam: 0, kambing: 3, sauce: 1, lontong: 0, drink: 1, price: 21 },
-  { name: 'Sate Kambing + Lontong', ayam: 0, kambing: 2, sauce: 1, lontong: 1, drink: 0, price: 19 },
+  { name: 'Sate Ayam + Lontong', ayam: 2, kambing: 0, sauce: 1, lontong: 1, drink: 0, kerupuk: 0, price: 16 },
+  { name: 'Sate Kambing + Es Teh', ayam: 0, kambing: 2, sauce: 1, lontong: 0, drink: 1, kerupuk: 0, price: 18 },
+  { name: 'Sate Campur Spesial', ayam: 1, kambing: 1, sauce: 1, lontong: 1, drink: 1, kerupuk: 0, price: 22 },
+  { name: 'Sate Ayam Jumbo + Es Teh', ayam: 3, kambing: 0, sauce: 1, lontong: 0, drink: 1, kerupuk: 0, price: 20 },
+  { name: 'Sate Kambing Jumbo + Es Teh', ayam: 0, kambing: 3, sauce: 1, lontong: 0, drink: 1, kerupuk: 0, price: 21 },
+  { name: 'Sate Kambing + Lontong', ayam: 0, kambing: 2, sauce: 1, lontong: 1, drink: 0, kerupuk: 0, price: 19 },
+  { name: 'Sate Ayam + Es Teh', ayam: 2, kambing: 0, sauce: 1, lontong: 0, drink: 1, kerupuk: 0, price: 17 },
+  { name: 'Sate Ayam Jumbo + Lontong', ayam: 3, kambing: 0, sauce: 1, lontong: 1, drink: 0, kerupuk: 0, price: 22 },
+  { name: 'Sate Kambing Jumbo + Lontong', ayam: 0, kambing: 3, sauce: 1, lontong: 1, drink: 0, kerupuk: 0, price: 23 },
+  { name: 'Sate Ayam + Kerupuk', ayam: 2, kambing: 0, sauce: 1, lontong: 0, drink: 0, kerupuk: 1, price: 18 },
+  { name: 'Sate Kambing + Kerupuk', ayam: 0, kambing: 2, sauce: 1, lontong: 0, drink: 0, kerupuk: 1, price: 20 },
 ];
 
 /** The walk-up customers: name, skin, shirt, hair and a distinct `style`

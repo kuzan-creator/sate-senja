@@ -33,6 +33,7 @@ function makeOrder(random) {
     sauce: dish.sauce,
     lontong: dish.lontong,
     drink: dish.drink,
+    kerupuk: dish.kerupuk,
     price: dish.price,
     patience: 1,
     maxSeconds: PATIENCE,
@@ -49,13 +50,14 @@ export function plateMatches(plate, order) {
     plate.kambing === order.kambing &&
     plate.sauce === order.sauce &&
     plate.lontong === order.lontong &&
-    plate.drink === order.drink
+    plate.drink === order.drink &&
+    plate.kerupuk === order.kerupuk
   );
 }
 
 /** True when the plate holds at least one thing (so Serve is not empty). */
 export function plateHasFood(plate) {
-  return plate.ayam + plate.kambing + plate.sauce + plate.lontong + plate.drink > 0;
+  return plate.ayam + plate.kambing + plate.sauce + plate.lontong + plate.drink + plate.kerupuk > 0;
 }
 
 export function createWorld(random) {
@@ -67,7 +69,7 @@ export function createWorld(random) {
     lost: 0,
     orders: [],
     grill: Array.from({ length: GRILL.slots }, () => ({ kind: null, t: 0, flipped: false })),
-    plate: { ayam: 0, kambing: 0, sauce: 0, lontong: 0, drink: 0 },
+    plate: { ayam: 0, kambing: 0, sauce: 0, lontong: 0, drink: 0, kerupuk: 0 },
     tray: { ayam: 99, kambing: 99 },
     selectedKind: 'ayam',
     orderTimer: 6,
@@ -98,7 +100,7 @@ export function createWorld(random) {
     state.lost = 0;
     state.orders = [];
     state.grill = Array.from({ length: GRILL.slots }, () => ({ kind: null, t: 0, flipped: false }));
-    state.plate = { ayam: 0, kambing: 0, sauce: 0, lontong: 0, drink: 0 };
+    state.plate = { ayam: 0, kambing: 0, sauce: 0, lontong: 0, drink: 0, kerupuk: 0 };
     state.tray = { ayam: 99, kambing: 99 };
     state.selectedKind = 'ayam';
     state.orderTimer = 6;
@@ -155,7 +157,7 @@ export function createWorld(random) {
   }
 
   function addToPlate(what) {
-    const cap = { sauce: 1, lontong: 1, drink: 1 };
+    const cap = { sauce: 1, lontong: 1, drink: 1, kerupuk: 1 };
     if (state.plate[what] >= (cap[what] ?? 9)) {
       say(`Already got ${what} on the plate.`);
       return;
@@ -183,7 +185,7 @@ export function createWorld(random) {
     state.served += 1;
     order.served = true;
     state.orders = state.orders.filter((o) => o !== order);
-    state.plate = { ayam: 0, kambing: 0, sauce: 0, lontong: 0, drink: 0 };
+    state.plate = { ayam: 0, kambing: 0, sauce: 0, lontong: 0, drink: 0, kerupuk: 0 };
     serveSound();
     state.lastServedHappy = true;
     state.happyT = 3;
@@ -250,8 +252,9 @@ export function createWorld(random) {
       if (input.pressed('s')) addToPlate('sauce');
       if (input.pressed('l')) addToPlate('lontong');
       if (input.pressed('d')) addToPlate('drink');
+      if (input.pressed('k')) addToPlate('kerupuk');
       if (input.pressed('a')) { state.selectedKind = 'ayam'; clickSound(); }
-      if (input.pressed('k')) { state.selectedKind = 'kambing'; clickSound(); }
+      if (input.pressed('g')) { state.selectedKind = 'kambing'; clickSound(); }
       if (input.pressed(' ')) {
         if (serve() > 0) events |= EVENT_SERVED;
       }
@@ -265,6 +268,7 @@ export function createWorld(random) {
       if (trayKind) { state.selectedKind = trayKind; clickSound(); continue; }
       if (hitSauce(c)) { addToPlate('sauce'); continue; }
       if (hitLontong(c)) { addToPlate('lontong'); continue; }
+      if (hitKerupuk(c)) { addToPlate('kerupuk'); continue; }
       if (hitDrink(c)) { addToPlate('drink'); continue; }
       if (hitServe(c)) {
         if (serve() > 0) events |= EVENT_SERVED;
@@ -288,8 +292,9 @@ export const ZONES = {
   grill: { x: 56, y: 312, w: 100, h: 120, gap: 8 },
   trayAyam: { x: 56, y: 520, w: 190, h: 92 },
   trayKambing: { x: 262, y: 520, w: 190, h: 92 },
-  sauce: { x: 500, y: 470, w: 130, h: 130 },
-  lontong: { x: 646, y: 470, w: 130, h: 130 },
+  sauce: { x: 512, y: 470, w: 100, h: 130 },
+  lontong: { x: 616, y: 470, w: 100, h: 130 },
+  kerupuk: { x: 720, y: 470, w: 96, h: 130 },
   drink: { x: 860, y: 250, w: 380, h: 150 },
   serve: { x: 560, y: 620, w: 180, h: 56 },
   tickets: { x: 16, y: 74, w: 296, h: 100, gap: 10 },
@@ -316,6 +321,7 @@ export function hitTray(c) {
 export function hitSauce(c) { return inZone(c, ZONES.sauce); }
 export function hitLontong(c) { return inZone(c, ZONES.lontong); }
 export function hitDrink(c) { return inZone(c, ZONES.drink); }
+export function hitKerupuk(c) { return inZone(c, ZONES.kerupuk); }
 export function hitServe(c) { return inZone(c, ZONES.serve); }
 
 export function hitTicket(c) {

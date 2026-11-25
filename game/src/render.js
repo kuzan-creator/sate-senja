@@ -1,13 +1,27 @@
 // Every pixel of Sate Senja: the dusk sky, the striped awning, the order
 // board, the charcoal grill, the plating counter and the waiting customer.
 // All art is drawn in code (canvas shapes); no images, no network.
-import { FIELD, GRILL, PALETTE } from './config.js';
+import { FIELD, GRILL, MENU, PALETTE } from './config.js';
 import { ZONES } from './world.js';
 
 export const SCREEN_TITLE = 'title';
 export const SCREEN_PLAY = 'play';
 export const SCREEN_PAUSED = 'paused';
 export const SCREEN_OVER = 'over';
+
+/** Clickable menu rectangles, shared with main.js (same numbers, one
+ * source of truth): title options, pause options, game-over buttons, and
+ * the How to Play BACK button. */
+export const MENU_ZONES = {
+  titleStart: { x: 460, y: 464, w: 360, h: 52 },
+  titleHowto: { x: 460, y: 528, w: 360, h: 52 },
+  pauseResume: { x: 400, y: 276, w: 480, h: 52 },
+  pauseRestart: { x: 400, y: 346, w: 480, h: 52 },
+  pauseHowto: { x: 400, y: 416, w: 480, h: 52 },
+  overAgain: { x: 430, y: 528, w: 200, h: 56 },
+  overMenu: { x: 650, y: 528, w: 200, h: 56 },
+  howtoBack: { x: 520, y: 664, w: 240, h: 52 },
+};
 
 function rr(ctx, x, y, w, h, r) {
   ctx.beginPath();
@@ -204,6 +218,27 @@ function drawMiniSauce(ctx, x, y) {
   ctx.closePath();
   ctx.fill();
 }
+function drawMiniKerupuk(ctx, x, y) {
+  // Mini cracker: a small pale-gold circle with a wavy edge and dots.
+  ctx.fillStyle = '#f2d492';
+  ctx.beginPath();
+  for (let i = 0; i < 8; i += 1) {
+    const a = (i / 8) * Math.PI * 2;
+    const r = i % 2 === 0 ? 7 : 5.5;
+    const px = x + 7 + Math.cos(a) * r;
+    const py = y + 8 + Math.sin(a) * r;
+    if (i === 0) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  }
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = '#d9a441';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  ctx.fillStyle = '#c98f2e';
+  ctx.fillRect(x + 5, y + 6, 2, 2);
+  ctx.fillRect(x + 9, y + 9, 2, 2);
+}
 
 function drawTicket(ctx, order, x, y, w, h, urgent) {
   ctx.fillStyle = PALETTE.ticket;
@@ -226,6 +261,7 @@ function drawTicket(ctx, order, x, y, w, h, urgent) {
   if (order.sauce) { drawMiniSauce(ctx, ix, y + 56); ix += 22; }
   if (order.lontong) { drawMiniLontong(ctx, ix, y + 56); ix += 22; }
   if (order.drink) { drawMiniDrink(ctx, ix, y + 56); ix += 22; }
+  if (order.kerupuk) { drawMiniKerupuk(ctx, ix, y + 56); ix += 22; }
   // Patience bar.
   const bw = w - 24;
   ctx.fillStyle = '#e3d3b3';
@@ -331,15 +367,58 @@ function drawSaucePot(ctx, x, y, w, h, onPlate) {
 function drawLontongStack(ctx, x, y, w, h, onPlate) {
   for (let i = 0; i < 3; i += 1) {
     ctx.fillStyle = '#eef3df';
-    rr(ctx, x + 18 + i * 6, y + 66 - i * 18, 74, 30, 6);
+    rr(ctx, x + 14 + i * 6, y + 66 - i * 18, 68, 30, 6);
     ctx.fill();
     ctx.strokeStyle = '#7a9a4d';
     ctx.lineWidth = 2;
-    rr(ctx, x + 18 + i * 6, y + 66 - i * 18, 74, 30, 6);
+    rr(ctx, x + 14 + i * 6, y + 66 - i * 18, 68, 30, 6);
     ctx.stroke();
   }
   text(ctx, 'LONTONG', x + w / 2, y + h - 22, 12, '#fff3d6', '800', 'center');
   text(ctx, onPlate ? 'on the plate ✓' : 'click or press L', x + w / 2, y + h - 8, 11, '#f2d8a0', '600', 'center');
+}
+
+/** A woven basket of kerupuk crackers, poking out the top. */
+function drawKerupukBasket(ctx, x, y, w, h, onPlate) {
+  // Two crackers poking out of the basket.
+  for (const [cx, cy, r] of [[x + 32, y + 44, 15], [x + 62, y + 40, 13]]) {
+    ctx.fillStyle = '#f7dc9a';
+    ctx.beginPath();
+    for (let i = 0; i < 10; i += 1) {
+      const a = (i / 10) * Math.PI * 2;
+      const rr2 = i % 2 === 0 ? r : r * 0.82;
+      const px = cx + Math.cos(a) * rr2;
+      const py = cy + Math.sin(a) * rr2;
+      if (i === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = '#d9a441';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.fillStyle = '#c98f2e';
+    ctx.fillRect(cx - 5, cy - 2, 3, 3);
+    ctx.fillRect(cx + 2, cy + 3, 3, 3);
+    ctx.fillRect(cx + 4, cy - 6, 2, 2);
+  }
+  // The basket.
+  ctx.fillStyle = '#8a5a2b';
+  rr(ctx, x + 6, y + 52, w - 12, h - 60, 8);
+  ctx.fill();
+  ctx.strokeStyle = '#c9a06a';
+  ctx.lineWidth = 2;
+  for (let i = 0; i < 3; i += 1) {
+    ctx.beginPath();
+    ctx.moveTo(x + 10, y + 66 + i * 14);
+    ctx.lineTo(x + w - 10, y + 66 + i * 14);
+    ctx.stroke();
+  }
+  ctx.strokeStyle = '#5e3413';
+  rr(ctx, x + 6, y + 52, w - 12, h - 60, 8);
+  ctx.stroke();
+  text(ctx, 'KERUPUK', x + w / 2, y + h - 22, 12, '#fff3d6', '800', 'center');
+  text(ctx, onPlate ? 'on the plate ✓' : 'click or press K', x + w / 2, y + h - 8, 11, '#f2d8a0', '600', 'center');
 }
 
 function drawDrinkStation(ctx, x, y, w, h, onPlate) {
@@ -578,13 +657,39 @@ export function createRenderer(canvas) {
       ctx.lineTo(798, 334);
       ctx.stroke();
     }
-    if (!s.plate.ayam && !s.plate.kambing && !s.plate.sauce && !s.plate.lontong && !s.plate.drink) {
+    if (s.plate.kerupuk) {
+      // A round kerupuk cracker with a wavy edge, sitting ON the plate
+      // (bottom-right, clear of the skewers and the lontong cubes).
+      const cx = 702;
+      const cy = 428;
+      ctx.fillStyle = '#f7dc9a';
+      ctx.beginPath();
+      for (let i = 0; i < 10; i += 1) {
+        const a = (i / 10) * Math.PI * 2;
+        const r = i % 2 === 0 ? 14 : 11.5;
+        const px = cx + Math.cos(a) * r;
+        const py = cy + Math.sin(a) * r;
+        if (i === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+      }
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = '#d9a441';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.fillStyle = '#c98f2e';
+      ctx.fillRect(cx - 5, cy - 2, 3, 3);
+      ctx.fillRect(cx + 2, cy + 3, 3, 3);
+      ctx.fillRect(cx + 4, cy - 6, 2, 2);
+    }
+    if (!s.plate.ayam && !s.plate.kambing && !s.plate.sauce && !s.plate.lontong && !s.plate.drink && !s.plate.kerupuk) {
       text(ctx, 'empty plate — build a dish here', 640, 396, 13, '#b09a7a', '600', 'center');
     }
     drawSaucePot(ctx, ZONES.sauce.x, ZONES.sauce.y, ZONES.sauce.w, ZONES.sauce.h, s.plate.sauce > 0);
     drawLontongStack(ctx, ZONES.lontong.x, ZONES.lontong.y, ZONES.lontong.w, ZONES.lontong.h, s.plate.lontong > 0);
+    drawKerupukBasket(ctx, ZONES.kerupuk.x, ZONES.kerupuk.y, ZONES.kerupuk.w, ZONES.kerupuk.h, s.plate.kerupuk > 0);
     // Serve button.
-    const canServe = s.plate.ayam + s.plate.kambing + s.plate.sauce + s.plate.lontong + s.plate.drink > 0;
+    const canServe = s.plate.ayam + s.plate.kambing + s.plate.sauce + s.plate.lontong + s.plate.drink + s.plate.kerupuk > 0;
     ctx.fillStyle = canServe ? PALETTE.green : '#8a7a66';
     rr(ctx, ZONES.serve.x, ZONES.serve.y, ZONES.serve.w, ZONES.serve.h, 12);
     ctx.fill();
@@ -652,8 +757,8 @@ export function createRenderer(canvas) {
   function drawBottomBar(s) {
     ctx.fillStyle = '#3a2113';
     ctx.fillRect(0, 744, FIELD.width, 56);
-    text(ctx, 'CLICK: tray → grill slot • flip at FLIP! • plate at READY! • sauce / lontong / drink onto the plate • SERVE or Space', 24, 770, 14, '#f2d8a0', '600');
-    text(ctx, 'KEYS: 1–4 grill  •  A/K skewer  •  S sauce  •  L lontong  •  D drink  •  Space serve  •  P pause', 24, 790, 13, '#c9a06a', '600');
+    text(ctx, 'CLICK: tray → grill slot • flip at FLIP! • plate at READY! • sauce / lontong / drink / kerupuk onto the plate • SERVE or Space', 24, 770, 14, '#f2d8a0', '600');
+    text(ctx, 'KEYS: 1–4 grill  •  A/G skewer  •  S sauce  •  L lontong  •  D drink  •  K kerupuk  •  Space serve  •  P pause', 24, 790, 13, '#c9a06a', '600');
     const prog = 1 - s.timeLeft / 180;
     ctx.fillStyle = '#5e3a1c';
     rr(ctx, 980, 758, 276, 10, 5);
@@ -664,7 +769,20 @@ export function createRenderer(canvas) {
     text(ctx, 'SHIFT', 968, 768, 12, '#f2a541', '800', 'right');
   }
 
-  function drawTitle(best) {
+  /** One menu option row: a filled button, highlighted when selected. */
+  function drawOption(ctx, z, label, selected, sub) {
+    ctx.fillStyle = selected ? PALETTE.green : 'rgba(43,29,22,0.82)';
+    rr(ctx, z.x, z.y, z.w, z.h, 12);
+    ctx.fill();
+    ctx.strokeStyle = selected ? PALETTE.gold : 'rgba(255,243,214,0.5)';
+    ctx.lineWidth = selected ? 3 : 2;
+    rr(ctx, z.x, z.y, z.w, z.h, 12);
+    ctx.stroke();
+    text(ctx, (selected ? '▶  ' : '     ') + label, z.x + z.w / 2, z.y + 34, 20, '#fff', '800', 'center');
+    if (sub) text(ctx, sub, z.x + z.w - 14, z.y + 34, 12, selected ? '#fff' : '#c9a06a', '600', 'right');
+  }
+
+  function drawTitle(best, ui) {
     const sky = ctx.createLinearGradient(0, 0, 0, 800);
     sky.addColorStop(0, PALETTE.skyTop);
     sky.addColorStop(0.5, PALETTE.skyMid);
@@ -678,14 +796,49 @@ export function createRenderer(canvas) {
     text(ctx, 'SATE SENJA', 640, 240, 96, '#fff3d6', '800', 'center');
     text(ctx, '—  SATAY GRILL RUSH  —', 640, 292, 30, PALETTE.gold, '700', 'center');
     text(ctx, 'Run the night-market satay stall: grill skewers over charcoal,', 640, 360, 20, '#fff3d6', '600', 'center');
-    text(ctx, 'drown them in peanut sauce, plate with lontong and es teh,', 640, 388, 20, '#fff3d6', '600', 'center');
+    text(ctx, 'drown them in peanut sauce, plate with lontong, kerupuk and es teh,', 640, 388, 20, '#fff3d6', '600', 'center');
     text(ctx, 'and serve before patience runs out.', 640, 416, 20, '#fff3d6', '600', 'center');
-    ctx.fillStyle = PALETTE.green;
-    rr(ctx, 520, 460, 240, 64, 14);
+    const sel = ui && typeof ui.title === 'number' ? ui.title : 0;
+    drawOption(ctx, MENU_ZONES.titleStart, 'START SHIFT', sel === 0, 'Space / 1');
+    drawOption(ctx, MENU_ZONES.titleHowto, 'HOW TO PLAY', sel === 1, '2');
+    text(ctx, '↑↓ choose  •  Enter select  •  click an option', 640, 614, 15, '#ffe9b0', '600', 'center');
+    if (best > 0) text(ctx, `Best shift so far: $${best}`, 640, 652, 16, PALETTE.gold, '700', 'center');
+  }
+
+  /** How to Play: the full menu with prices, all controls, and the loop.
+   * Drawn as a centred panel over whatever screen opened it, so the stall
+   * stays visible at the edges. */
+  function drawHowTo() {
+    ctx.fillStyle = 'rgba(43,29,22,0.72)';
+    ctx.fillRect(0, 0, FIELD.width, FIELD.height);
+    ctx.fillStyle = '#4a2c14';
+    rr(ctx, 100, 60, 1080, 660, 16);
     ctx.fill();
-    text(ctx, '▶  START SHIFT', 640, 502, 24, '#fff', '800', 'center');
-    text(ctx, 'Click or press Space to start  •  Mouse + keyboard (1–4, S, L, D, Space)', 640, 580, 16, '#ffe9b0', '600', 'center');
-    if (best > 0) text(ctx, `Best shift so far: $${best}`, 640, 620, 16, PALETTE.gold, '700', 'center');
+    ctx.strokeStyle = PALETTE.gold;
+    ctx.lineWidth = 3;
+    rr(ctx, 100, 60, 1080, 660, 16);
+    ctx.stroke();
+    text(ctx, '★  HOW TO PLAY  ★', 640, 116, 30, PALETTE.gold, '800', 'center');
+    text(ctx, 'THE MENU — every dish, every price', 150, 152, 15, '#ffe9b0', '800');
+    const left = MENU.slice(0, 6);
+    const right = MENU.slice(6);
+    for (let i = 0; i < left.length; i += 1) {
+      text(ctx, `•  ${left[i].name}`, 150, 182 + i * 30, 15, '#fff3d6', '600');
+      text(ctx, `$${left[i].price}`, 560, 182 + i * 30, 15, PALETTE.gold, '800', 'right');
+    }
+    for (let i = 0; i < right.length; i += 1) {
+      text(ctx, `•  ${right[i].name}`, 700, 182 + i * 30, 15, '#fff3d6', '600');
+      text(ctx, `$${right[i].price}`, 1130, 182 + i * 30, 15, PALETTE.gold, '800', 'right');
+    }
+    text(ctx, 'CONTROLS', 150, 392, 15, '#ffe9b0', '800');
+    text(ctx, 'Click a tray pile, then an empty grill slot  •  click a slot at FLIP! to flip it, at green READY! to plate it', 150, 420, 14, '#fff3d6', '600');
+    text(ctx, 'Click the sauce pot / lontong stack / kerupuk basket / a tea glass to add it to the plate  •  SERVE! or Space serves', 150, 444, 14, '#fff3d6', '600');
+    text(ctx, 'Keys:  1–4 grill  •  A/G skewer  •  S sauce  •  L lontong  •  D drink  •  K kerupuk  •  Space serve  •  P pause', 150, 468, 14, '#fff3d6', '600');
+    text(ctx, 'TIPS', 150, 512, 15, '#ffe9b0', '800');
+    text(ctx, 'Serve fast for bigger tips  •  every serve in a row grows the combo  •  a burnt skewer goes in the bin — click it', 150, 540, 14, '#fff3d6', '600');
+    text(ctx, 'Match the ticket exactly: skewers, sauce, lontong, drink AND kerupuk — or the plate will not serve.', 150, 564, 14, '#fff3d6', '600');
+    text(ctx, 'A red HURRY! ticket is about to walk away — serve it first.', 150, 588, 14, '#fff3d6', '600');
+    drawOption(ctx, MENU_ZONES.howtoBack, 'BACK', true, 'Esc / B');
   }
 
   function drawOver(s, best) {
@@ -696,28 +849,52 @@ export function createRenderer(canvas) {
     const stars = s.coins >= 300 ? '★★★' : s.coins >= 180 ? '★★☆' : s.coins >= 90 ? '★☆☆' : '☆☆☆';
     text(ctx, stars, 640, 390, 48, PALETTE.gold, '800', 'center');
     if (s.coins > best) text(ctx, 'New best shift!', 640, 440, 20, PALETTE.gold, '800', 'center');
-    text(ctx, 'Press R to run another shift', 640, 500, 18, '#fff3d6', '600', 'center');
+    drawOption(ctx, MENU_ZONES.overAgain, 'PLAY AGAIN', true, 'R');
+    ctx.fillStyle = '#8a5a2b';
+    rr(ctx, MENU_ZONES.overMenu.x, MENU_ZONES.overMenu.y, MENU_ZONES.overMenu.w, MENU_ZONES.overMenu.h, 12);
+    ctx.fill();
+    ctx.strokeStyle = PALETTE.gold;
+    ctx.lineWidth = 2;
+    rr(ctx, MENU_ZONES.overMenu.x, MENU_ZONES.overMenu.y, MENU_ZONES.overMenu.w, MENU_ZONES.overMenu.h, 12);
+    ctx.stroke();
+    text(ctx, 'BACK TO MENU', MENU_ZONES.overMenu.x + MENU_ZONES.overMenu.w / 2, MENU_ZONES.overMenu.y + 35, 16, '#fff', '800', 'center');
+    text(ctx, 'R play again  •  M back to menu  •  or click a button', 640, 626, 16, '#fff3d6', '600', 'center');
   }
 
-  function drawPaused() {
-    ctx.fillStyle = 'rgba(43,29,22,0.6)';
+  /** Pause menu: a panel at most 50% of the screen wide, over a dimmed
+   * kitchen that stays visible behind and around it. */
+  function drawPaused(ui) {
+    ctx.fillStyle = 'rgba(43,29,22,0.5)';
     ctx.fillRect(0, 0, FIELD.width, FIELD.height);
-    text(ctx, 'PAUSED', 640, 380, 64, '#fff3d6', '800', 'center');
-    text(ctx, 'Press P to keep grilling', 640, 430, 20, '#f2d8a0', '600', 'center');
+    ctx.fillStyle = '#4a2c14';
+    rr(ctx, 320, 190, 640, 400, 16);
+    ctx.fill();
+    ctx.strokeStyle = PALETTE.gold;
+    ctx.lineWidth = 3;
+    rr(ctx, 320, 190, 640, 400, 16);
+    ctx.stroke();
+    text(ctx, 'PAUSED', 640, 248, 40, '#fff3d6', '800', 'center');
+    const sel = ui && typeof ui.pause === 'number' ? ui.pause : 0;
+    drawOption(ctx, MENU_ZONES.pauseResume, 'RESUME', sel === 0, 'P');
+    drawOption(ctx, MENU_ZONES.pauseRestart, 'RESTART SHIFT', sel === 1, '2');
+    drawOption(ctx, MENU_ZONES.pauseHowto, 'HOW TO PLAY', sel === 2, '3');
+    text(ctx, '↑↓ choose  •  Enter select  •  P resume', 640, 516, 15, '#ffe9b0', '600', 'center');
+    text(ctx, 'the skewers wait for no one…', 640, 548, 14, '#c9a06a', '600', 'center');
   }
 
-  function draw(state, screen, best) {
+  function draw(state, screen, best, ui) {
     ctx.clearRect(0, 0, FIELD.width, FIELD.height);
     if (screen === SCREEN_TITLE) {
-      drawTitle(best);
-      return;
+      drawTitle(best, ui);
+    } else {
+      drawHeader(state);
+      drawBoard(state);
+      drawKitchen(state, state.time);
+      drawBottomBar(state);
+      if (screen === SCREEN_OVER) drawOver(state, best);
+      else if (screen === SCREEN_PAUSED) drawPaused(ui);
     }
-    drawHeader(state);
-    drawBoard(state);
-    drawKitchen(state, state.time);
-    drawBottomBar(state);
-    if (screen === SCREEN_OVER) drawOver(state, best);
-    else if (screen === SCREEN_PAUSED) drawPaused();
+    if (ui && ui.howto) drawHowTo();
   }
 
   return { draw };
