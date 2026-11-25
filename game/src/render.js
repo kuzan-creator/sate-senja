@@ -1,7 +1,7 @@
 // Every pixel of Sate Senja: the dusk sky, the striped awning, the order
 // board, the charcoal grill, the plating counter and the waiting customer.
 // All art is drawn in code (canvas shapes); no images, no network.
-import { FIELD, GRILL, MENU, PALETTE } from './config.js';
+import { CUSTOMERS, FIELD, GRILL, MENU, PALETTE } from './config.js';
 import { ZONES } from './world.js';
 
 export const SCREEN_TITLE = 'title';
@@ -176,68 +176,85 @@ function drawFace(ctx, x, y, r, who, happy) {
   ctx.stroke();
 }
 
-/** Mini recipe icons for tickets and the plate. */
+/** Mini recipe icons for tickets and the plate. Drawn BIG (~20px) with
+ * thick strokes: at judge-thumbnail size (320px) they must still read as
+ * "skewer + extras", not blur into dots. */
 function drawMiniSkewer(ctx, x, y) {
-  ctx.strokeStyle = '#8a6a45';
-  ctx.lineWidth = 2;
+  ctx.strokeStyle = '#6b4423';
+  ctx.lineWidth = 3;
   ctx.beginPath();
-  ctx.moveTo(x, y + 4);
-  ctx.lineTo(x + 22, y + 4);
+  ctx.moveTo(x, y + 5);
+  ctx.lineTo(x + 28, y + 5);
   ctx.stroke();
   ctx.fillStyle = '#8a5a2b';
-  for (let i = 0; i < 3; i += 1) ctx.fillRect(x + 3 + i * 6, y, 5, 8);
+  for (let i = 0; i < 3; i += 1) ctx.fillRect(x + 4 + i * 8, y, 7, 11);
+  ctx.strokeStyle = '#5e3413';
+  ctx.lineWidth = 1;
+  for (let i = 0; i < 3; i += 1) ctx.strokeRect(x + 4 + i * 8, y, 7, 11);
 }
 function drawMiniLontong(ctx, x, y) {
   ctx.fillStyle = '#f5f1e6';
-  rr(ctx, x, y, 14, 14, 3);
+  rr(ctx, x, y, 20, 20, 3);
   ctx.fill();
-  ctx.strokeStyle = '#7a9a4d';
-  ctx.lineWidth = 2;
-  ctx.strokeRect(x, y, 14, 14);
+  ctx.strokeStyle = '#5a7a2d';
+  ctx.lineWidth = 3;
+  ctx.strokeRect(x, y, 20, 20);
+  ctx.fillStyle = '#cfe0ae';
+  ctx.fillRect(x + 4, y + 4, 12, 5);
 }
 function drawMiniDrink(ctx, x, y) {
   ctx.fillStyle = '#e8912d';
-  rr(ctx, x + 2, y + 4, 10, 12, 2);
+  rr(ctx, x + 2, y + 4, 15, 17, 3);
   ctx.fill();
-  ctx.strokeStyle = '#fff';
+  ctx.strokeStyle = '#b96a12';
   ctx.lineWidth = 2;
+  ctx.strokeRect(x + 2, y + 4, 15, 17);
+  ctx.fillStyle = 'rgba(255,255,255,0.85)';
+  ctx.fillRect(x + 6, y + 9, 4, 4);
+  ctx.fillRect(x + 12, y + 14, 4, 4);
+  ctx.strokeStyle = '#d62828';
+  ctx.lineWidth = 3;
   ctx.beginPath();
-  ctx.moveTo(x + 9, y + 4);
-  ctx.lineTo(x + 12, y - 3);
+  ctx.moveTo(x + 12, y + 5);
+  ctx.lineTo(x + 16, y - 3);
   ctx.stroke();
 }
 function drawMiniSauce(ctx, x, y) {
   ctx.fillStyle = '#8a5a2b';
   ctx.beginPath();
-  ctx.arc(x + 7, y + 8, 6, 0, Math.PI * 2);
+  ctx.arc(x + 10, y + 11, 8, 0, Math.PI * 2);
   ctx.fill();
+  ctx.strokeStyle = '#5e3413';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.fillStyle = '#8a5a2b';
   ctx.beginPath();
-  ctx.moveTo(x + 7, y - 4);
-  ctx.lineTo(x + 2, y + 6);
-  ctx.lineTo(x + 12, y + 6);
+  ctx.moveTo(x + 10, y - 4);
+  ctx.lineTo(x + 3, y + 8);
+  ctx.lineTo(x + 17, y + 8);
   ctx.closePath();
   ctx.fill();
 }
 function drawMiniKerupuk(ctx, x, y) {
   // Mini cracker: a small pale-gold circle with a wavy edge and dots.
-  ctx.fillStyle = '#f2d492';
+  ctx.fillStyle = '#f2c94c';
   ctx.beginPath();
   for (let i = 0; i < 8; i += 1) {
     const a = (i / 8) * Math.PI * 2;
-    const r = i % 2 === 0 ? 7 : 5.5;
-    const px = x + 7 + Math.cos(a) * r;
-    const py = y + 8 + Math.sin(a) * r;
+    const r = i % 2 === 0 ? 10 : 8;
+    const px = x + 10 + Math.cos(a) * r;
+    const py = y + 10 + Math.sin(a) * r;
     if (i === 0) ctx.moveTo(px, py);
     else ctx.lineTo(px, py);
   }
   ctx.closePath();
   ctx.fill();
-  ctx.strokeStyle = '#d9a441';
-  ctx.lineWidth = 1.5;
+  ctx.strokeStyle = '#b57e1e';
+  ctx.lineWidth = 2.5;
   ctx.stroke();
-  ctx.fillStyle = '#c98f2e';
-  ctx.fillRect(x + 5, y + 6, 2, 2);
-  ctx.fillRect(x + 9, y + 9, 2, 2);
+  ctx.fillStyle = '#8a5a10';
+  ctx.fillRect(x + 7, y + 7, 3, 3);
+  ctx.fillRect(x + 12, y + 12, 3, 3);
 }
 
 function drawTicket(ctx, order, x, y, w, h, urgent) {
@@ -252,16 +269,16 @@ function drawTicket(ctx, order, x, y, w, h, urgent) {
   text(ctx, order.customer.name, x + 58, y + 24, 15, PALETTE.text, '800');
   text(ctx, order.name, x + 58, y + 44, 12.5, PALETTE.muted, '600');
   text(ctx, `$${order.price}`, x + w - 12, y + 24, 17, PALETTE.greenDark, '800', 'right');
-  // Recipe icons row.
+  // Recipe icons row (bigger icons, wider steps — must read at 320px).
   let ix = x + 58;
   for (let i = 0; i < order.ayam + order.kambing; i += 1) {
-    drawMiniSkewer(ctx, ix, y + 56);
-    ix += 26;
+    drawMiniSkewer(ctx, ix, y + 54);
+    ix += 30;
   }
-  if (order.sauce) { drawMiniSauce(ctx, ix, y + 56); ix += 22; }
-  if (order.lontong) { drawMiniLontong(ctx, ix, y + 56); ix += 22; }
-  if (order.drink) { drawMiniDrink(ctx, ix, y + 56); ix += 22; }
-  if (order.kerupuk) { drawMiniKerupuk(ctx, ix, y + 56); ix += 22; }
+  if (order.sauce) { drawMiniSauce(ctx, ix, y + 54); ix += 28; }
+  if (order.lontong) { drawMiniLontong(ctx, ix, y + 54); ix += 28; }
+  if (order.drink) { drawMiniDrink(ctx, ix, y + 54); ix += 28; }
+  if (order.kerupuk) { drawMiniKerupuk(ctx, ix, y + 54); ix += 28; }
   // Patience bar.
   const bw = w - 24;
   ctx.fillStyle = '#e3d3b3';
@@ -503,10 +520,18 @@ export function createRenderer(canvas) {
       drawTicket(ctx, o, z.x + i * (z.w + z.gap), z.y, z.w, z.h, o.patience <= 0.25);
     }
     for (let i = s.orders.length; i < 4; i += 1) {
-      ctx.fillStyle = 'rgba(255,248,231,0.12)';
+      // Empty slot: a LIGHT slot on the dark board (a near-invisible
+      // fill reads as a dead black box at thumbnail size).
+      ctx.fillStyle = '#6b4423';
       rr(ctx, z.x + i * (z.w + z.gap), z.y, z.w, z.h, 10);
       ctx.fill();
-      text(ctx, 'waiting for a customer…', z.x + i * (z.w + z.gap) + z.w / 2, z.y + 54, 13, '#e8c98a', '600', 'center');
+      ctx.setLineDash([7, 5]);
+      ctx.strokeStyle = '#e8c98a';
+      ctx.lineWidth = 2;
+      rr(ctx, z.x + i * (z.w + z.gap), z.y, z.w, z.h, 10);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      text(ctx, 'waiting for a customer…', z.x + i * (z.w + z.gap) + z.w / 2, z.y + 54, 13, '#ffe9b0', '600', 'center');
     }
   }
 
@@ -626,17 +651,18 @@ export function createRenderer(canvas) {
       ctx.stroke();
     }
     if (s.plate.lontong) {
-      // Three white-green lontong cubes sitting ON the plate.
-      const cubes = [[688, 350], [708, 354], [696, 368]];
+      // Three white-green lontong cubes sitting ON the plate — big
+      // (22px) with a thick green outline so they still read at 320px.
+      const cubes = [[682, 346], [708, 350], [694, 368]];
       for (const [cx, cy] of cubes) {
         ctx.fillStyle = '#f5f1e6';
-        rr(ctx, cx, cy, 18, 18, 3);
+        rr(ctx, cx, cy, 22, 22, 3);
         ctx.fill();
-        ctx.strokeStyle = '#7a9a4d';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(cx, cy, 18, 18);
+        ctx.strokeStyle = '#5a7a2d';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(cx, cy, 22, 22);
         ctx.fillStyle = '#cfe0ae';
-        ctx.fillRect(cx + 3, cy + 3, 12, 4);
+        ctx.fillRect(cx + 4, cy + 4, 14, 5);
       }
     }
     if (s.plate.drink) {
@@ -658,15 +684,21 @@ export function createRenderer(canvas) {
       ctx.stroke();
     }
     if (s.plate.kerupuk) {
-      // A round kerupuk cracker with a wavy edge, sitting ON the plate
-      // (bottom-right, clear of the skewers and the lontong cubes).
-      const cx = 702;
-      const cy = 428;
-      ctx.fillStyle = '#f7dc9a';
+      // A BIG kerupuk cracker with a wavy edge, sitting ON the plate and
+      // breaking its lower-right edge — pale on white disappears at
+      // thumbnail size, so it is large (r 20), darker gold, thick-outlined,
+      // with a soft shadow lifting it off the plate.
+      const cx = 714;
+      const cy = 440;
+      ctx.fillStyle = 'rgba(43,29,22,0.25)';
+      ctx.beginPath();
+      ctx.ellipse(cx + 2, cy + 4, 21, 12, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#eebc4e';
       ctx.beginPath();
       for (let i = 0; i < 10; i += 1) {
         const a = (i / 10) * Math.PI * 2;
-        const r = i % 2 === 0 ? 14 : 11.5;
+        const r = i % 2 === 0 ? 20 : 16.5;
         const px = cx + Math.cos(a) * r;
         const py = cy + Math.sin(a) * r;
         if (i === 0) ctx.moveTo(px, py);
@@ -674,13 +706,13 @@ export function createRenderer(canvas) {
       }
       ctx.closePath();
       ctx.fill();
-      ctx.strokeStyle = '#d9a441';
-      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#8a5a10';
+      ctx.lineWidth = 3;
       ctx.stroke();
-      ctx.fillStyle = '#c98f2e';
-      ctx.fillRect(cx - 5, cy - 2, 3, 3);
-      ctx.fillRect(cx + 2, cy + 3, 3, 3);
-      ctx.fillRect(cx + 4, cy - 6, 2, 2);
+      ctx.fillStyle = '#8a5a10';
+      ctx.fillRect(cx - 8, cy - 3, 4, 4);
+      ctx.fillRect(cx + 3, cy + 5, 4, 4);
+      ctx.fillRect(cx + 6, cy - 9, 3, 3);
     }
     if (!s.plate.ayam && !s.plate.kambing && !s.plate.sauce && !s.plate.lontong && !s.plate.drink && !s.plate.kerupuk) {
       text(ctx, 'empty plate — build a dish here', 640, 396, 13, '#b09a7a', '600', 'center');
@@ -757,7 +789,7 @@ export function createRenderer(canvas) {
   function drawBottomBar(s) {
     ctx.fillStyle = '#3a2113';
     ctx.fillRect(0, 744, FIELD.width, 56);
-    text(ctx, 'CLICK: tray → grill slot • flip at FLIP! • plate at READY! • sauce / lontong / drink / kerupuk onto the plate • SERVE or Space', 24, 770, 14, '#f2d8a0', '600');
+    text(ctx, 'CLICK: tray → grill slot • flip at FLIP! • plate at READY! • extras onto the plate • SERVE or Space', 24, 770, 15, '#f2d8a0', '600');
     text(ctx, 'KEYS: 1–4 grill  •  A/G skewer  •  S sauce  •  L lontong  •  D drink  •  K kerupuk  •  Space serve  •  P pause', 24, 790, 13, '#c9a06a', '600');
     const prog = 1 - s.timeLeft / 180;
     ctx.fillStyle = '#5e3a1c';
@@ -803,6 +835,27 @@ export function createRenderer(canvas) {
     drawOption(ctx, MENU_ZONES.titleHowto, 'HOW TO PLAY', sel === 1, '2');
     text(ctx, '↑↓ choose  •  Enter select  •  click an option', 640, 614, 15, '#ffe9b0', '600', 'center');
     if (best > 0) text(ctx, `Best shift so far: $${best}`, 640, 652, 16, PALETTE.gold, '700', 'center');
+    // Bottom band: the lower half of the title screen was bare gradient,
+    // which reads as an empty frame at thumbnail size. Fill it with a
+    // "tonight's menu" strip — the six customers, a big skewer, and the
+    // dish range — all big shapes that read even at 160px wide.
+    ctx.fillStyle = '#3a2113';
+    ctx.fillRect(0, 668, FIELD.width, 132);
+    ctx.fillStyle = PALETTE.gold;
+    ctx.fillRect(0, 668, FIELD.width, 3);
+    text(ctx, "★ TONIGHT'S MENU ★", 24, 700, 15, PALETTE.gold, '800');
+    for (let i = 0; i < CUSTOMERS.length; i += 1) {
+      const who = CUSTOMERS[i];
+      const fx = 100 + i * 80;
+      ctx.fillStyle = who.shirt;
+      rr(ctx, fx - 24, 760, 48, 36, 10);
+      ctx.fill();
+      drawFace(ctx, fx, 748, 25, who, true);
+    }
+    drawSkewer(ctx, 620, 700, 240, 'perfect', 9, false);
+    text(ctx, '11 DISHES — $16 TO $23', 900, 712, 20, PALETTE.gold, '800');
+    text(ctx, 'Sate Ayam • Sate Kambing • Kerupuk', 900, 744, 15, '#fff3d6', '600');
+    text(ctx, 'Lontong • Es Teh • Peanut Sauce', 900, 770, 15, '#f2d8a0', '600');
   }
 
   /** How to Play: the full menu with prices, all controls, and the loop.

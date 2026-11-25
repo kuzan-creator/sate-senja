@@ -1,4 +1,4 @@
-// The screenshot scenes behind ?shot=1|2|3|4. Each one stages a real world
+// The screenshot scenes behind ?shot=1..18. Each one stages a real world
 // state directly (orders, grill, plate, coins, timer) and the renderer paints
 // it, so the frame is exactly what a played shift looks like at that moment
 // and the same seed always gives the same frame. No title screen, no modal.
@@ -42,7 +42,81 @@ export function stageShot(name, world, random) {
     { name: 'Dewi', skin: '#e5b57e', shirt: '#ef476f', hair: '#1d130c', style: 'bob' },
   ];
 
-  if (name === '13') {
+  if (name === '15') {
+    // Shot A (v4): TITLE SCREEN with the filled lower band — six
+    // customers, a big skewer, and the dish range under the buttons.
+    return { screen: 'title', best: 312, ui: { title: 0, pause: 0, howto: false } };
+  } else if (name === '16') {
+    // Shot B (v4): PEAK RUSH with kerupuk — plate cracker now big, dark
+    // gold, breaking the plate's edge so it reads at thumbnail size.
+    s.timeLeft = 118;
+    s.coins = 261;
+    s.combo = 6;
+    s.served = 12;
+    s.orders = [
+      order(random, 'Sate Ayam + Kerupuk', C[4], { ayam: 2, sauce: 1, kerupuk: 1 }, 18, 0.15),
+      order(random, 'Sate Campur Spesial', C[0], { ayam: 1, kambing: 1, sauce: 1, lontong: 1, drink: 1 }, 22, 0.22),
+      order(random, 'Sate Kambing + Kerupuk', C[1], { kambing: 2, sauce: 1, kerupuk: 1 }, 20, 0.4),
+      order(random, 'Sate Ayam Jumbo + Lontong', C[5], { ayam: 3, sauce: 1, lontong: 1 }, 22, 0.55),
+    ];
+    s.grill = [
+      slot('ayam', 5.5, false),
+      slot('kambing', 5.8, false),
+      slot('ayam', 11.0, true),
+      slot('kambing', 13.6, true),
+    ];
+    s.plate = { ayam: 1, kambing: 0, sauce: 1, lontong: 0, drink: 0, kerupuk: 1 };
+    s.toast = 'Kerupuk crunch! Rina is about to walk away!';
+    s.toastT = 99;
+    s.lastServedHappy = false;
+  } else if (name === '17') {
+    // Shot C (v4): SERVING PAYOFF with a kerupuk dish — Sari happy,
+    // +$28 (tip $8) on 'Sate Kambing + Kerupuk', plate full and matching.
+    s.timeLeft = 88;
+    s.coins = 301;
+    s.combo = 8;
+    s.served = 16;
+    s.orders = [
+      order(random, 'Sate Kambing + Kerupuk', C[2], { kambing: 2, sauce: 1, kerupuk: 1 }, 20, 0.8),
+      order(random, 'Sate Ayam Jumbo + Lontong', C[3], { ayam: 3, sauce: 1, lontong: 1 }, 22, 0.6),
+      order(random, 'Sate Ayam + Es Teh', C[4], { ayam: 2, sauce: 1, drink: 1 }, 17, 0.45),
+    ];
+    s.grill = [
+      slot('kambing', 10.4, true),
+      slot('ayam', 3.2, false),
+      slot(null, 0, false),
+      slot('ayam', 5.6, false),
+    ];
+    s.plate = { ayam: 0, kambing: 2, sauce: 1, lontong: 0, drink: 0, kerupuk: 1 };
+    s.fx = [{ x: 640, y: 318, text: '+$28  (tip $8)', life: 1.6, color: '#2c7a32' }];
+    s.toast = 'Sari loved it! Combo x8 — best shift yet!';
+    s.toastT = 99;
+    s.lastServedHappy = true;
+  } else if (name === '18') {
+    // Shot D (v4): PAUSE MENU open over gameplay — the panel is 50% wide
+    // and the kitchen stays visible behind and around it.
+    s.timeLeft = 74;
+    s.coins = 233;
+    s.combo = 4;
+    s.served = 9;
+    s.orders = [
+      order(random, 'Sate Ayam + Kerupuk', C[0], { ayam: 2, sauce: 1, kerupuk: 1 }, 18, 0.7),
+      order(random, 'Sate Kambing Jumbo + Lontong', C[1], { kambing: 3, sauce: 1, lontong: 1 }, 23, 0.5),
+      order(random, 'Sate Campur Spesial', C[2], { ayam: 1, kambing: 1, sauce: 1, lontong: 1, drink: 1 }, 22, 0.35),
+      order(random, 'Sate Ayam + Es Teh', C[5], { ayam: 2, sauce: 1, drink: 1 }, 17, 0.85),
+    ];
+    s.grill = [
+      slot('ayam', 2.5, false),
+      slot('kambing', 5.5, false),
+      slot('ayam', 10.8, true),
+      slot(null, 0, false),
+    ];
+    s.plate = { ayam: 1, kambing: 0, sauce: 1, lontong: 0, drink: 0, kerupuk: 1 };
+    s.toast = 'Paused — the skewers wait for no one!';
+    s.toastT = 99;
+    s.lastServedHappy = false;
+    return { screen: 'paused', best: 0, ui: { title: 0, pause: 1, howto: false } };
+  } else if (name === '13') {
     // Verification-only: SHIFT OVER screen with PLAY AGAIN / BACK TO MENU.
     s.timeLeft = 0;
     s.coins = 312;

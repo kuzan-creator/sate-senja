@@ -5,7 +5,7 @@
 // a real list of options: clickable AND keyboard-navigable (arrow keys,
 // number keys, Enter/Space to pick).
 //
-// ?seed=N fixes the customer and order pattern. ?shot=1..12 (with &seed=N)
+// ?seed=N fixes the customer and order pattern. ?shot=1..18 (with &seed=N)
 // stages that scene instead of running the loop, paints it twice and sets
 // window.__shotReady for a screenshot.
 import { BEST_KEY, FIELD, STEP } from './config.js';
