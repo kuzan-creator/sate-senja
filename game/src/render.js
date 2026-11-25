@@ -18,8 +18,8 @@ export const MENU_ZONES = {
   pauseResume: { x: 400, y: 276, w: 480, h: 52 },
   pauseRestart: { x: 400, y: 346, w: 480, h: 52 },
   pauseHowto: { x: 400, y: 416, w: 480, h: 52 },
-  overAgain: { x: 430, y: 528, w: 200, h: 56 },
-  overMenu: { x: 650, y: 528, w: 200, h: 56 },
+  overAgain: { x: 425, y: 528, w: 210, h: 56 },
+  overMenu: { x: 645, y: 528, w: 210, h: 56 },
   howtoBack: { x: 520, y: 664, w: 240, h: 52 },
 };
 
@@ -215,8 +215,8 @@ function drawMiniDrink(ctx, x, y) {
   ctx.strokeStyle = '#d62828';
   ctx.lineWidth = 3;
   ctx.beginPath();
-  ctx.moveTo(x + 12, y + 5);
-  ctx.lineTo(x + 16, y - 3);
+  ctx.moveTo(x + 12, y + 6);
+  ctx.lineTo(x + 15, y - 1);
   ctx.stroke();
 }
 function drawMiniSauce(ctx, x, y) {
@@ -229,7 +229,7 @@ function drawMiniSauce(ctx, x, y) {
   ctx.stroke();
   ctx.fillStyle = '#8a5a2b';
   ctx.beginPath();
-  ctx.moveTo(x + 10, y - 4);
+  ctx.moveTo(x + 10, y - 2);
   ctx.lineTo(x + 3, y + 8);
   ctx.lineTo(x + 17, y + 8);
   ctx.closePath();
@@ -267,18 +267,20 @@ function drawTicket(ctx, order, x, y, w, h, urgent) {
   ctx.stroke();
   drawFace(ctx, x + 30, y + 30, 20, order.customer, !urgent);
   text(ctx, order.customer.name, x + 58, y + 24, 15, PALETTE.text, '800');
-  text(ctx, order.name, x + 58, y + 44, 12.5, PALETTE.muted, '600');
+  text(ctx, order.name, x + 58, y + 44, 12, PALETTE.muted, '600');
   text(ctx, `$${order.price}`, x + w - 12, y + 24, 17, PALETTE.greenDark, '800', 'right');
   // Recipe icons row (bigger icons, wider steps — must read at 320px).
+  // Row sits 2px lower than v4 so the tallest icon (sauce drop, drink
+  // straw) clears the dish-name text above it by >=4px.
   let ix = x + 58;
   for (let i = 0; i < order.ayam + order.kambing; i += 1) {
-    drawMiniSkewer(ctx, ix, y + 54);
+    drawMiniSkewer(ctx, ix, y + 56);
     ix += 30;
   }
-  if (order.sauce) { drawMiniSauce(ctx, ix, y + 54); ix += 28; }
-  if (order.lontong) { drawMiniLontong(ctx, ix, y + 54); ix += 28; }
-  if (order.drink) { drawMiniDrink(ctx, ix, y + 54); ix += 28; }
-  if (order.kerupuk) { drawMiniKerupuk(ctx, ix, y + 54); ix += 28; }
+  if (order.sauce) { drawMiniSauce(ctx, ix, y + 56); ix += 28; }
+  if (order.lontong) { drawMiniLontong(ctx, ix, y + 56); ix += 28; }
+  if (order.drink) { drawMiniDrink(ctx, ix, y + 56); ix += 28; }
+  if (order.kerupuk) { drawMiniKerupuk(ctx, ix, y + 56); ix += 28; }
   // Patience bar.
   const bw = w - 24;
   ctx.fillStyle = '#e3d3b3';
@@ -360,8 +362,12 @@ function drawTrayPile(ctx, x, y, w, h, kind, label, selected) {
 }
 
 function drawSaucePot(ctx, x, y, w, h, onPlate) {
+  // Pot body runs to the zone bottom (h-40, not h-48): the sub-label's
+  // descenders used to cross the pot's bottom edge by 3px. Labels are
+  // 10px now — 'PEANUT SAUCE' measures 75.4px in the 88px pot, 6.3px
+  // clear each side — and the sub-labels are shortened to fit easily.
   ctx.fillStyle = '#3a2a1a';
-  rr(ctx, x + 8, y + 40, w - 16, h - 48, 12);
+  rr(ctx, x + 6, y + 40, w - 12, h - 40, 12);
   ctx.fill();
   ctx.fillStyle = PALETTE.sauce;
   ctx.beginPath();
@@ -377,8 +383,8 @@ function drawSaucePot(ctx, x, y, w, h, onPlate) {
   ctx.moveTo(x + w - 22, y + 30);
   ctx.lineTo(x + w - 6, y + 8);
   ctx.stroke();
-  text(ctx, 'PEANUT SAUCE', x + w / 2, y + h - 22, 12, '#fff3d6', '800', 'center');
-  text(ctx, onPlate ? 'on the plate ✓' : 'click or press S', x + w / 2, y + h - 8, 11, '#f2d8a0', '600', 'center');
+  text(ctx, 'PEANUT SAUCE', x + w / 2, y + h - 24, 10, '#fff3d6', '800', 'center');
+  text(ctx, onPlate ? 'on plate ✓' : 'press S', x + w / 2, y + h - 10, 10, '#f2d8a0', '600', 'center');
 }
 
 function drawLontongStack(ctx, x, y, w, h, onPlate) {
@@ -391,8 +397,11 @@ function drawLontongStack(ctx, x, y, w, h, onPlate) {
     rr(ctx, x + 14 + i * 6, y + 66 - i * 18, 68, 30, 6);
     ctx.stroke();
   }
-  text(ctx, 'LONTONG', x + w / 2, y + h - 22, 12, '#fff3d6', '800', 'center');
-  text(ctx, onPlate ? 'on the plate ✓' : 'click or press L', x + w / 2, y + h - 8, 11, '#f2d8a0', '600', 'center');
+  // 10px labels: 'LONTONG' is 56px in the 80px stack span (12px clear
+  // each side); the sub-labels are shortened — 'click or press L' was
+  // 78.7px, wider than the stack itself.
+  text(ctx, 'LONTONG', x + w / 2, y + h - 24, 10, '#fff3d6', '800', 'center');
+  text(ctx, onPlate ? 'on plate ✓' : 'press L', x + w / 2, y + h - 10, 10, '#f2d8a0', '600', 'center');
 }
 
 /** A woven basket of kerupuk crackers, poking out the top. */
@@ -419,9 +428,10 @@ function drawKerupukBasket(ctx, x, y, w, h, onPlate) {
     ctx.fillRect(cx + 2, cy + 3, 3, 3);
     ctx.fillRect(cx + 4, cy - 6, 2, 2);
   }
-  // The basket.
+  // The basket runs to the zone bottom (h-52, not h-60): the sub-label's
+  // descenders used to cross the basket's bottom edge by 3px.
   ctx.fillStyle = '#8a5a2b';
-  rr(ctx, x + 6, y + 52, w - 12, h - 60, 8);
+  rr(ctx, x + 6, y + 52, w - 12, h - 52, 8);
   ctx.fill();
   ctx.strokeStyle = '#c9a06a';
   ctx.lineWidth = 2;
@@ -432,10 +442,12 @@ function drawKerupukBasket(ctx, x, y, w, h, onPlate) {
     ctx.stroke();
   }
   ctx.strokeStyle = '#5e3413';
-  rr(ctx, x + 6, y + 52, w - 12, h - 60, 8);
+  rr(ctx, x + 6, y + 52, w - 12, h - 52, 8);
   ctx.stroke();
-  text(ctx, 'KERUPUK', x + w / 2, y + h - 22, 12, '#fff3d6', '800', 'center');
-  text(ctx, onPlate ? 'on the plate ✓' : 'click or press K', x + w / 2, y + h - 8, 11, '#f2d8a0', '600', 'center');
+  // 10px labels: 'KERUPUK' is 51.9px in the 84px basket (16px clear each
+  // side); 'on the plate ✓' was 76.7px with the ✓ at the basket's edge.
+  text(ctx, 'KERUPUK', x + w / 2, y + h - 24, 10, '#fff3d6', '800', 'center');
+  text(ctx, onPlate ? 'on plate ✓' : 'press K', x + w / 2, y + h - 10, 10, '#f2d8a0', '600', 'center');
 }
 
 function drawDrinkStation(ctx, x, y, w, h, onPlate) {
@@ -581,7 +593,9 @@ export function createRenderer(canvas) {
     text(ctx, 'flip at FLIP!  •  click at green READY!  •  burnt = bin it', 256, 470, 13, '#ffe9b0', '600', 'center');
     drawTrayPile(ctx, ZONES.trayAyam.x, ZONES.trayAyam.y, ZONES.trayAyam.w, ZONES.trayAyam.h, 'ayam', 'SATE AYAM — chicken', s.selectedKind === 'ayam');
     drawTrayPile(ctx, ZONES.trayKambing.x, ZONES.trayKambing.y, ZONES.trayKambing.w, ZONES.trayKambing.h, 'kambing', 'SATE KAMBING — goat', s.selectedKind === 'kambing');
-    text(ctx, 'INGREDIENTS ON THE COUNTER', 256, 640, 12, '#ffe9b0', '800', 'center');
+    // Baseline 634, not 640: the grill panel ends at y=640, so a 640
+    // baseline put the text exactly ON the panel's bottom edge (0px).
+    text(ctx, 'INGREDIENTS ON THE COUNTER', 256, 634, 12, '#ffe9b0', '800', 'center');
 
     // --- Plating counter (middle) ---
     ctx.fillStyle = PALETTE.counter;
