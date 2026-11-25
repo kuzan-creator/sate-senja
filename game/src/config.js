@@ -32,18 +32,21 @@ export const MENU = [
   { name: 'Sate Ayam + Lontong', ayam: 2, kambing: 0, sauce: 1, lontong: 1, drink: 0, price: 16 },
   { name: 'Sate Kambing + Es Teh', ayam: 0, kambing: 2, sauce: 1, lontong: 0, drink: 1, price: 18 },
   { name: 'Sate Campur Spesial', ayam: 1, kambing: 1, sauce: 1, lontong: 1, drink: 1, price: 22 },
-  { name: 'Sate Ayam Jumbo', ayam: 3, kambing: 0, sauce: 1, lontong: 0, drink: 1, price: 20 },
+  { name: 'Sate Ayam Jumbo + Es Teh', ayam: 3, kambing: 0, sauce: 1, lontong: 0, drink: 1, price: 20 },
+  { name: 'Sate Kambing Jumbo + Es Teh', ayam: 0, kambing: 3, sauce: 1, lontong: 0, drink: 1, price: 21 },
   { name: 'Sate Kambing + Lontong', ayam: 0, kambing: 2, sauce: 1, lontong: 1, drink: 0, price: 19 },
 ];
 
-/** The walk-up customers: name, skin, shirt and hair for their ticket face. */
+/** The walk-up customers: name, skin, shirt, hair and a distinct `style`
+ * the renderer draws (ponytail / moustache+cap / headscarf / spiky / bun /
+ * bob) so no two faces are ever clones of each other. */
 export const CUSTOMERS = [
-  { name: 'Maya', skin: '#f2c89b', shirt: '#e4572e', hair: '#2b1d16' },
-  { name: 'Budi', skin: '#d9a066', shirt: '#2e86ab', hair: '#17120e' },
-  { name: 'Sari', skin: '#eec39a', shirt: '#f2a541', hair: '#3a2417' },
-  { name: 'Agus', skin: '#c98d54', shirt: '#4caf50', hair: '#100c09' },
-  { name: 'Rina', skin: '#f6d3a8', shirt: '#9b5de5', hair: '#241812' },
-  { name: 'Dewi', skin: '#e5b57e', shirt: '#ef476f', hair: '#1d130c' },
+  { name: 'Maya', skin: '#f6cf9f', shirt: '#e4572e', hair: '#2b1d16', style: 'ponytail' },
+  { name: 'Budi', skin: '#c98d54', shirt: '#2e86ab', hair: '#17120e', style: 'moustache' },
+  { name: 'Sari', skin: '#eec39a', shirt: '#f2a541', hair: '#3a2417', style: 'scarf', scarf: '#2e86ab' },
+  { name: 'Agus', skin: '#a06a35', shirt: '#4caf50', hair: '#100c09', style: 'spiky' },
+  { name: 'Rina', skin: '#f6d3a8', shirt: '#9b5de5', hair: '#241812', style: 'bun' },
+  { name: 'Dewi', skin: '#e5b57e', shirt: '#ef476f', hair: '#1d130c', style: 'bob' },
 ];
 
 /** Warm night-market dusk palette: bright, full, never dark and empty. */

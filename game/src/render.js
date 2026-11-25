@@ -70,26 +70,95 @@ function drawSkewer(ctx, x, y, w, stage, t, flip) {
   }
 }
 
-/** A little customer face: skin circle, hair, eyes and a smile. */
+/** A customer face, distinct per person: each `style` draws a different
+ * silhouette (ponytail / moustache+cap / headscarf / spiky / bun / bob) so
+ * tickets and the big portrait never look like clones. */
 function drawFace(ctx, x, y, r, who, happy) {
-  ctx.fillStyle = who.skin;
-  ctx.beginPath();
-  ctx.arc(x, y, r, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = who.hair;
-  ctx.beginPath();
-  ctx.arc(x, y - r * 0.35, r * 0.95, Math.PI, 0);
-  ctx.fill();
+  const style = who.style || 'plain';
+  if (style === 'scarf') {
+    // Headscarf: a coloured hood framing the face, with a knot at the chin.
+    ctx.fillStyle = who.scarf || '#2e86ab';
+    ctx.beginPath();
+    ctx.arc(x, y, r * 1.05, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = who.skin;
+    ctx.beginPath();
+    ctx.arc(x, y + r * 0.08, r * 0.78, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = who.scarf || '#2e86ab';
+    ctx.beginPath();
+    ctx.arc(x, y + r * 0.95, r * 0.28, 0, Math.PI * 2);
+    ctx.fill();
+  } else {
+    ctx.fillStyle = who.skin;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+    if (style === 'spiky') {
+      // Spiky hair: a row of triangles on top of the head.
+      ctx.fillStyle = who.hair;
+      ctx.beginPath();
+      for (let i = 0; i < 5; i += 1) {
+        const hx = x - r * 0.8 + i * r * 0.4;
+        ctx.moveTo(hx, y - r * 0.35);
+        ctx.lineTo(hx + r * 0.2, y - r * 1.05);
+        ctx.lineTo(hx + r * 0.4, y - r * 0.35);
+      }
+      ctx.fill();
+    } else {
+      // Hair cap over the top of the head.
+      ctx.fillStyle = who.hair;
+      ctx.beginPath();
+      ctx.arc(x, y - r * 0.35, r * 0.95, Math.PI, 0);
+      ctx.fill();
+    }
+    if (style === 'ponytail') {
+      // Side ponytail with a tie, on the viewer's right.
+      ctx.fillStyle = who.hair;
+      ctx.beginPath();
+      ctx.arc(x + r * 0.95, y - r * 0.05, r * 0.38, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#e4572e';
+      ctx.beginPath();
+      ctx.arc(x + r * 0.78, y - r * 0.28, r * 0.12, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (style === 'bun') {
+      // Topknot, big enough to read at ticket size.
+      ctx.fillStyle = who.hair;
+      ctx.beginPath();
+      ctx.arc(x, y - r * 1.12, r * 0.46, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (style === 'bob') {
+      // Bob cut: hair falling to the chin on both sides.
+      ctx.fillStyle = who.hair;
+      rr(ctx, x - r * 0.98, y - r * 0.4, r * 0.3, r * 0.95, r * 0.12);
+      ctx.fill();
+      rr(ctx, x + r * 0.68, y - r * 0.4, r * 0.3, r * 0.95, r * 0.12);
+      ctx.fill();
+    } else if (style === 'moustache') {
+      // Flat cap on top, moustache under the nose.
+      ctx.fillStyle = '#2e4057';
+      ctx.beginPath();
+      ctx.arc(x, y - r * 0.55, r * 0.9, Math.PI, 0);
+      ctx.fill();
+      ctx.fillRect(x - r * 0.9, y - r * 0.62, r * 1.8, r * 0.16);
+      ctx.fillStyle = who.hair;
+      ctx.beginPath();
+      ctx.ellipse(x - r * 0.2, y + r * 0.28, r * 0.24, r * 0.1, -0.25, 0, Math.PI * 2);
+      ctx.ellipse(x + r * 0.2, y + r * 0.28, r * 0.24, r * 0.1, 0.25, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
   ctx.fillStyle = '#241a12';
   ctx.beginPath();
-  ctx.arc(x - r * 0.35, y - r * 0.05, r * 0.09, 0, Math.PI * 2);
-  ctx.arc(x + r * 0.35, y - r * 0.05, r * 0.09, 0, Math.PI * 2);
+  ctx.arc(x - r * 0.32, y - r * 0.02, r * 0.09, 0, Math.PI * 2);
+  ctx.arc(x + r * 0.32, y - r * 0.02, r * 0.09, 0, Math.PI * 2);
   ctx.fill();
   ctx.strokeStyle = '#241a12';
   ctx.lineWidth = Math.max(2, r * 0.08);
   ctx.beginPath();
-  if (happy) ctx.arc(x, y + r * 0.15, r * 0.45, 0.15 * Math.PI, 0.85 * Math.PI);
-  else ctx.arc(x, y + r * 0.55, r * 0.3, 1.15 * Math.PI, 1.85 * Math.PI);
+  if (happy) ctx.arc(x, y + r * 0.18, r * 0.45, 0.15 * Math.PI, 0.85 * Math.PI);
+  else ctx.arc(x, y + r * 0.58, r * 0.3, 1.15 * Math.PI, 1.85 * Math.PI);
   ctx.stroke();
 }
 
@@ -196,12 +265,14 @@ function drawGrillSlot(ctx, slot, stage, x, y, w, h, time) {
       else text(ctx, 'READY!', x + w / 2, y + h - 8, 13, PALETTE.green, '800', 'center');
     } else if (stage === 'burnt') {
       text(ctx, 'BURNT!', x + w / 2, y + h - 8, 13, PALETTE.red, '800', 'center');
-      // Smoke puffs.
+      // Smoke puffs, clamped to stay inside this slot AND clear of the
+      // BURNT! label at the bottom: they rise from the coals to mid-slot
+      // and wrap, never over the GRILL header or any text.
       ctx.fillStyle = PALETTE.smoke;
       for (let i = 0; i < 3; i += 1) {
-        const sy = y - 6 - ((time * 22 + i * 16) % 42);
+        const sy = y + 16 + ((time * 22 + i * 16) % (h - 56));
         ctx.beginPath();
-        ctx.arc(x + w / 2 + (i - 1) * 14, sy, 7 + i, 0, Math.PI * 2);
+        ctx.arc(x + w / 2 + (i - 1) * 14, sy, 6 + i, 0, Math.PI * 2);
         ctx.fill();
       }
     } else if (stage === 'flip') {
@@ -416,53 +487,99 @@ export function createRenderer(canvas) {
     rr(ctx, 512, 268, 308, 34, 14);
     ctx.fill();
     text(ctx, 'PLATING COUNTER', 528, 291, 15, '#fff3d6', '800');
-    // The plate.
+    // The plate, shifted left so the drink glass fits BESIDE it.
     ctx.fillStyle = PALETTE.plate;
     ctx.beginPath();
-    ctx.ellipse(666, 392, 128, 66, 0, 0, Math.PI * 2);
+    ctx.ellipse(640, 392, 118, 62, 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.strokeStyle = PALETTE.plateEdge;
     ctx.lineWidth = 3;
     ctx.beginPath();
-    ctx.ellipse(666, 392, 128, 66, 0, 0, Math.PI * 2);
+    ctx.ellipse(640, 392, 118, 62, 0, 0, Math.PI * 2);
     ctx.stroke();
     ctx.beginPath();
-    ctx.ellipse(666, 392, 104, 50, 0, 0, Math.PI * 2);
+    ctx.ellipse(640, 392, 96, 46, 0, 0, Math.PI * 2);
     ctx.stroke();
-    // Food on the plate.
+    // Food on the plate: every added item is drawn, never just a ✓.
+    // Sauce puddle first, under the skewers: darker than the meat so the
+    // cubes read against it instead of camouflaging into it.
+    if (s.plate.sauce) {
+      ctx.fillStyle = '#5e3413';
+      ctx.beginPath();
+      ctx.ellipse(640, 404, 82, 14, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = PALETTE.sauceLight;
+      ctx.beginPath();
+      ctx.ellipse(640, 401, 62, 8, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    // Skewers, staggered sideways so each one reads even when two are
+    // plated (a second skewer stacked dead-centre hides behind the first).
     let py = 372;
     for (let i = 0; i < s.plate.ayam + s.plate.kambing; i += 1) {
-      drawSkewer(ctx, 586, py - 14, 160, 'perfect', 9, false);
+      drawSkewer(ctx, 552 + i * 16, py - 14, 150, 'perfect', 9, false);
       py += 20;
     }
     if (s.plate.sauce) {
-      ctx.strokeStyle = PALETTE.sauce;
-      ctx.lineWidth = 7;
+      // Bold peanut-sauce drizzle zig-zagging OVER the skewers.
+      ctx.strokeStyle = '#7a4a1f';
+      ctx.lineWidth = 8;
+      ctx.lineJoin = 'round';
       ctx.beginPath();
-      ctx.moveTo(590, 400);
-      ctx.quadraticCurveTo(666, 416, 742, 398);
+      ctx.moveTo(566, 388);
+      ctx.lineTo(590, 404);
+      ctx.lineTo(614, 388);
+      ctx.lineTo(638, 404);
+      ctx.lineTo(662, 388);
+      ctx.lineTo(686, 404);
+      ctx.lineTo(704, 392);
+      ctx.stroke();
+      ctx.strokeStyle = PALETTE.sauceLight;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(566, 385);
+      ctx.lineTo(590, 401);
+      ctx.lineTo(614, 385);
+      ctx.lineTo(638, 401);
+      ctx.lineTo(662, 385);
+      ctx.lineTo(686, 401);
+      ctx.lineTo(704, 389);
       ctx.stroke();
     }
     if (s.plate.lontong) {
-      for (let i = 0; i < 2; i += 1) {
+      // Three white-green lontong cubes sitting ON the plate.
+      const cubes = [[688, 350], [708, 354], [696, 368]];
+      for (const [cx, cy] of cubes) {
         ctx.fillStyle = '#f5f1e6';
-        rr(ctx, 700 + i * 20, 356, 18, 18, 3);
+        rr(ctx, cx, cy, 18, 18, 3);
         ctx.fill();
         ctx.strokeStyle = '#7a9a4d';
         ctx.lineWidth = 2;
-        ctx.strokeRect(700 + i * 20, 356, 18, 18);
+        ctx.strokeRect(cx, cy, 18, 18);
+        ctx.fillStyle = '#cfe0ae';
+        ctx.fillRect(cx + 3, cy + 3, 12, 4);
       }
     }
     if (s.plate.drink) {
-      ctx.fillStyle = 'rgba(255,255,255,0.9)';
-      rr(ctx, 596, 330, 30, 40, 5);
+      // Iced-tea glass with a straw, standing BESIDE the plate.
+      ctx.fillStyle = 'rgba(255,255,255,0.95)';
+      rr(ctx, 772, 344, 30, 46, 5);
       ctx.fill();
       ctx.fillStyle = PALETTE.tea;
-      rr(ctx, 599, 342, 24, 25, 4);
+      rr(ctx, 775, 356, 24, 31, 4);
       ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,0.7)';
+      ctx.fillRect(780, 361, 6, 6);
+      ctx.fillRect(790, 371, 6, 6);
+      ctx.strokeStyle = '#d62828';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(790, 348);
+      ctx.lineTo(798, 334);
+      ctx.stroke();
     }
     if (!s.plate.ayam && !s.plate.kambing && !s.plate.sauce && !s.plate.lontong && !s.plate.drink) {
-      text(ctx, 'empty plate — build a dish here', 666, 396, 13, '#b09a7a', '600', 'center');
+      text(ctx, 'empty plate — build a dish here', 640, 396, 13, '#b09a7a', '600', 'center');
     }
     drawSaucePot(ctx, ZONES.sauce.x, ZONES.sauce.y, ZONES.sauce.w, ZONES.sauce.h, s.plate.sauce > 0);
     drawLontongStack(ctx, ZONES.lontong.x, ZONES.lontong.y, ZONES.lontong.w, ZONES.lontong.h, s.plate.lontong > 0);
@@ -494,7 +611,7 @@ export function createRenderer(canvas) {
     rr(ctx, 968, 520, 160, 130, 18);
     ctx.fill();
     drawFace(ctx, 1048, 470, 52, who, !!happy);
-    const bubble = s.lastServedHappy ? 'So yummy! Thank you!' : first ? `${who.name}: “I'm hungry — hurry!”` : 'Next customer coming…';
+    const bubble = s.bubble || (s.lastServedHappy ? 'So yummy! Thank you!' : first ? `${who.name}: “I'm hungry — hurry!”` : 'Next customer coming…');
     ctx.fillStyle = '#fff8e7';
     rr(ctx, 868, 640 - 84, 364, 56, 12);
     ctx.fill();
@@ -519,14 +636,17 @@ export function createRenderer(canvas) {
       ctx.fillText(f.text, f.x, f.y - (1.6 - f.life) * 40);
       ctx.globalAlpha = 1;
     }
-    // Toast.
-    if (s.toastT > 0) {
-      ctx.fillStyle = 'rgba(43,29,22,0.88)';
-      const tw = ctx.measureText(s.toast).width + 40;
-      rr(ctx, (FIELD.width - tw) / 2, 706, tw, 30, 15);
-      ctx.fill();
-      text(ctx, s.toast, FIELD.width / 2, 727, 14, '#fff3d6', '600', 'center');
-    }
+    // Status ticker: a full-width bar filling the band between the panels
+    // and the bottom bar, so no empty purple strip is ever visible. It is
+    // always drawn (a default line when no toast is active).
+    const line = s.toastT > 0 && s.toast ? s.toast : 'Grill, sauce, plate, serve — keep the rush going!';
+    ctx.fillStyle = '#2e1a0e';
+    ctx.fillRect(0, 700, FIELD.width, 44);
+    ctx.fillStyle = PALETTE.gold;
+    ctx.fillRect(0, 700, FIELD.width, 3);
+    text(ctx, '★ SATE SENJA • NIGHT MARKET', 24, 729, 13, PALETTE.gold, '800');
+    text(ctx, line, FIELD.width / 2, 729, 15, '#fff3d6', '600', 'center');
+    text(ctx, `served ${s.served}  •  COMBO x${s.combo}`, FIELD.width - 24, 729, 13, '#f2a541', '800', 'right');
   }
 
   function drawBottomBar(s) {
